@@ -18,10 +18,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+os.makedirs(log_dir, exist_ok=True)
+log_file = os.path.join(log_dir, "ticker.log")
+
 logging.basicConfig(
-    filename="ticker.log",
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
+    handlers=[logging.FileHandler(log_file)],
 )
 
 logging.getLogger("httpx").setLevel(logging.WARNING)

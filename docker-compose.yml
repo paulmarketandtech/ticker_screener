@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  app:
+    image: cjt-ticker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./logs:/logs
+    env_file: .env
