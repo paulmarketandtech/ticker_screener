@@ -1,10 +1,12 @@
-import os
 import html
 import json
 import logging
+import os
 import traceback
-import yfinance as yf
 from datetime import datetime
+
+import yfinance as yf
+from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.ext import (
@@ -14,28 +16,23 @@ from telegram.ext import (
     ContextTypes,
     ConversationHandler,
 )
-from dotenv import load_dotenv
 
 load_dotenv()
 
-log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
-os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, "ticker.log")
-
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filename=os.getenv("LOG_FILE"),
     level=logging.INFO,
-    handlers=[logging.FileHandler(log_file)],
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-
 logging.getLogger("httpx").setLevel(logging.WARNING)
-logger = logging.getLogger(__name__)
 
 y, BUTTONS = range(2)
 x, ABOUT, DVD, MOMENTUM, NEWS, DONE = range(6)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    logging.info("---------------/start COMMAND------------------")
+    logging.info("User %s started the conversation.", update)
     await update.message.reply_text("Type /t [ticker] to get info")
 
 
@@ -98,9 +95,10 @@ def build_keybord(symbol) -> InlineKeyboardMarkup:
 
 
 async def about_company(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("---------------ABOUT COMPANY----------------")
+    logging.info("User %s pressed ABOUT COMPANY.", update)
     query = update.callback_query
     symbol = query.message.reply_markup.inline_keyboard[0][0].text.split()[1][1:]
-    # logger.info("query %s started the conversation.", symbol)
     ticker = yf.Ticker(symbol)
 
     await query.answer()
@@ -120,8 +118,9 @@ async def about_company(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def dvd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    # logger.info("query %s started the conversation.", update)
+    logging.info("---------------DVD----------------")
+    logging.info("User %s pressed DVD.", update)
+    query = update.callback_queryn
     symbol = query.message.reply_markup.inline_keyboard[0][0].text.split()[1][1:]
     ticker = yf.Ticker(symbol)
     try:
@@ -151,6 +150,8 @@ async def dvd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def news_company(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("---------------news_company----------------")
+    logging.info("User %s pressed NEWS COMPANY.", update)
     query = update.callback_query
     symbol = query.message.reply_markup.inline_keyboard[0][0].text.split()[1][1:]
     ticker = yf.Ticker(symbol)
@@ -208,6 +209,8 @@ async def news_company(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def momentum(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("---------------momentum------------------")
+    logging.info("User %s pressed MOMENTUM.", update)
     # logger.info("User %s started the conversation.", update)
     query = update.callback_query
     symbol = query.message.reply_markup.inline_keyboard[0][0].text.split()[1][1:]
@@ -243,6 +246,8 @@ async def momentum(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    logging.info("---------------DONE------------------")
+    logging.info("User %s pressed DONE", update)
     query = update.callback_query
     await query.answer()
     await query.edit_message_text(text="See you next time!")
@@ -252,7 +257,8 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 # prints buttons /t
 async def ticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logger.info("User %s started the conversation.", update)
+    logging.info("---------------/t COMMAND------------------")
+    logging.info("User %s started the conversation.", update)
     chat_type = update.message.chat.type
     chat_id = update.message.chat.id
     thread_id = update.message.message_thread_id
