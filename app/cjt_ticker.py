@@ -335,8 +335,14 @@ def main() -> None:
         },
         fallbacks=[CommandHandler("t", ticker_command), CommandHandler("start", start)],
         conversation_timeout=40,
+        per_chat=True,
+        per_user=True,
+        per_message=False,
     )
     application.add_handler(conv_handler)
+
+    application.add_handler(CommandHandler("t", ticker_command))
+    application.add_handler(CommandHandler("start", start))
 
     application.add_error_handler(error_handler)
 
