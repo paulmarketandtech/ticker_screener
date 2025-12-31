@@ -2,6 +2,7 @@ import html
 import json
 import logging
 import os
+import time
 import traceback
 from datetime import datetime
 
@@ -9,13 +10,8 @@ import yfinance as yf
 from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import (
-    Application,
-    CallbackQueryHandler,
-    CommandHandler,
-    ContextTypes,
-    ConversationHandler,
-)
+from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
+                          ContextTypes, ConversationHandler)
 
 load_dotenv()
 
@@ -257,6 +253,9 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 # prints buttons /t
 async def ticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    start_time = time.perf_counter()
+    await update.message.reply_text(f"Working on {context.args[0]}")
+    # await update.message.reply_text(f"Hello {update.effective_user.first_name}")
     logging.info("---------------/t COMMAND------------------")
     logging.info("User %s started the conversation.", update)
     chat_type = update.message.chat.type
@@ -278,6 +277,9 @@ async def ticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         and thread_id == data[str(chat_id)]
     ):
         symbol = context.args[0]
+        end_time = time.perf_counter()
+        logging.info(f"Took {end_time - start_time} seconds before calling YF")
+        start_time = time.perf_counter()
         ticker = yf.Ticker(symbol.upper())
 
         try:
@@ -309,6 +311,8 @@ async def ticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             return BUTTONS
 
+        end_time = time.perf_counter()
+        logging.info(f"Took {end_time - start_time} seconds after calling YF")
         except KeyError:
             await update.message.reply_text("Bad ticker. Try again")
         except IndexError:
