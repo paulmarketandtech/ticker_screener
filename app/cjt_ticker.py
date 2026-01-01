@@ -10,8 +10,13 @@ import yfinance as yf
 from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
-                          ContextTypes, ConversationHandler)
+from telegram.ext import (
+    Application,
+    CallbackQueryHandler,
+    CommandHandler,
+    ContextTypes,
+    ConversationHandler,
+)
 
 load_dotenv()
 
@@ -252,11 +257,11 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 # prints buttons /t
-async def ticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def ticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     start_time = time.perf_counter()
     await update.message.reply_text(f"Working on {context.args[0]}")
     # await update.message.reply_text(f"Hello {update.effective_user.first_name}")
-    logging.info("---------------/t COMMAND------------------")
+    logging.info("---------------/ticker COMMAND------------------")
     logging.info("User %s started the conversation.", update)
     chat_type = update.message.chat.type
     chat_id = update.message.chat.id
@@ -309,10 +314,10 @@ async def ticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 text="Basic info. Pick one", reply_markup=reply_markup
             )
 
+            end_time = time.perf_counter()
+            logging.info(f"Took {end_time - start_time} seconds after calling YF")
             return BUTTONS
 
-        end_time = time.perf_counter()
-        logging.info(f"Took {end_time - start_time} seconds after calling YF")
         except KeyError:
             await update.message.reply_text("Bad ticker. Try again")
         except IndexError:
@@ -326,7 +331,7 @@ def main() -> None:
         entry_points=[
             CommandHandler("start", start),
             CommandHandler("help", help_command),
-            CommandHandler("t", ticker_command),
+            CommandHandler("ticker", ticker_command),
         ],
         states={
             BUTTONS: [
@@ -337,7 +342,10 @@ def main() -> None:
                 CallbackQueryHandler(done, pattern="^" + str(DONE) + "$"),
             ]
         },
-        fallbacks=[CommandHandler("t", ticker_command), CommandHandler("start", start)],
+        fallbacks=[
+            CommandHandler("ticker", ticker_command),
+            CommandHandler("start", start),
+        ],
         conversation_timeout=40,
         per_chat=True,
         per_user=True,
@@ -345,7 +353,7 @@ def main() -> None:
     )
     application.add_handler(conv_handler)
 
-    application.add_handler(CommandHandler("t", ticker_command))
+    application.add_handler(CommandHandler("ticker", ticker_command))
     application.add_handler(CommandHandler("start", start))
 
     application.add_error_handler(error_handler)
