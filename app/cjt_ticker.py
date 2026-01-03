@@ -256,12 +256,12 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 
-# prints buttons /t
+# prints buttons /symbol
 async def ticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     start_time = time.perf_counter()
     await update.message.reply_text(f"Working on {context.args[0]}")
     # await update.message.reply_text(f"Hello {update.effective_user.first_name}")
-    logging.info("---------------/ticker COMMAND------------------")
+    logging.info("---------------/symbol COMMAND------------------")
     logging.info("User %s started the conversation.", update)
     chat_type = update.message.chat.type
     chat_id = update.message.chat.id
@@ -331,7 +331,7 @@ def main() -> None:
         entry_points=[
             CommandHandler("start", start),
             CommandHandler("help", help_command),
-            CommandHandler("ticker", ticker_command),
+            CommandHandler("symbol", ticker_command),
         ],
         states={
             BUTTONS: [
@@ -343,7 +343,7 @@ def main() -> None:
             ]
         },
         fallbacks=[
-            CommandHandler("ticker", ticker_command),
+            CommandHandler("symbol", ticker_command),
             CommandHandler("start", start),
         ],
         conversation_timeout=40,
@@ -353,7 +353,7 @@ def main() -> None:
     )
     application.add_handler(conv_handler)
 
-    application.add_handler(CommandHandler("ticker", ticker_command))
+    application.add_handler(CommandHandler("symbol", ticker_command))
     application.add_handler(CommandHandler("start", start))
 
     application.add_error_handler(error_handler)
