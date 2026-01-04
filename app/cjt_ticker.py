@@ -121,7 +121,7 @@ async def about_company(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def dvd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("---------------DVD----------------")
     logging.info("User %s pressed DVD.", update)
-    query = update.callback_queryn
+    query = update.callback_query
     symbol = query.message.reply_markup.inline_keyboard[0][0].text.split()[1][1:]
     ticker = yf.Ticker(symbol)
     try:
@@ -343,7 +343,7 @@ def main() -> None:
             ]
         },
         fallbacks=[
-            CommandHandler("symbol", ticker_command),
+            # CommandHandler("symbol", ticker_command),
             CommandHandler("start", start),
         ],
         conversation_timeout=40,
@@ -353,8 +353,8 @@ def main() -> None:
     )
     application.add_handler(conv_handler)
 
-    application.add_handler(CommandHandler("symbol", ticker_command))
-    application.add_handler(CommandHandler("start", start))
+    # application.add_handler(CommandHandler("symbol", ticker_command))
+    # application.add_handler(CommandHandler("start", start))
 
     application.add_error_handler(error_handler)
 
