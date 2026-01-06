@@ -34,7 +34,7 @@ x, ABOUT, DVD, MOMENTUM, NEWS, DONE = range(6)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logging.info("---------------/start COMMAND------------------")
     logging.info("User %s started the conversation.", update)
-    await update.message.reply_text("Type /t [ticker] to get info")
+    await update.message.reply_text("Type /symbol [ticker] to get info")
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -72,9 +72,10 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     )
 
 
+"""
 async def menu_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-
     await context.bot.set_chat_menu_button()
+"""
 
 
 def build_keybord(symbol) -> InlineKeyboardMarkup:
@@ -343,7 +344,7 @@ def main() -> None:
             ]
         },
         fallbacks=[
-            # CommandHandler("symbol", ticker_command),
+            CommandHandler("symbol", ticker_command),
             CommandHandler("start", start),
         ],
         conversation_timeout=40,
@@ -353,7 +354,7 @@ def main() -> None:
     )
     application.add_handler(conv_handler)
 
-    # application.add_handler(CommandHandler("symbol", ticker_command))
+    application.add_handler(CommandHandler("symbol", ticker_command))
     # application.add_handler(CommandHandler("start", start))
 
     application.add_error_handler(error_handler)
