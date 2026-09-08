@@ -42,19 +42,13 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Log the error and send a telegram message to notify the developer."""
-    # Log the error before we do anything else, so we can see it even if something breaks.
     logging.error("Exception while handling an update:", exc_info=context.error)
 
-    # traceback.format_exception returns the usual python message about an exception, but as a
-    # list of strings rather than a single string, so we have to join them together.
     tb_list = traceback.format_exception(
         None, context.error, context.error.__traceback__
     )
     tb_string = "".join(tb_list)
 
-    # Build the message with some markup and additional information about what happened.
-    # You might need to add some logic to deal with messages longer than the 4096 character limit.
     update_str = update.to_dict() if isinstance(update, Update) else str(update)
     message = (
         "An exception was raised while handling an update\n"
@@ -65,17 +59,9 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
         f"<pre>{html.escape(tb_string)}</pre>"
     )
 
-    # Finally, send the message
-    # chat_id=update.effective_chat.id, text=message, parse_mode=ParseMode.HTML
     await context.bot.send_message(
         chat_id=os.getenv("MY_ID"), text=message, parse_mode=ParseMode.HTML
     )
-
-
-"""
-async def menu_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await context.bot.set_chat_menu_button()
-"""
 
 
 def build_keybord(symbol) -> InlineKeyboardMarkup:
@@ -178,6 +164,7 @@ async def news_company(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except TypeError:
             links.append(ticker.news[i]["content"]["canonicalUrl"]["url"])
 
+    # hardcoded 3 newest news
     msg = (
         f"News for {ticker.info['longName']}:\n\n"
         f"Title: {ticker.news[0]['content']['title']}\n\n"
@@ -213,7 +200,6 @@ async def news_company(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def momentum(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("---------------momentum------------------")
     logging.info("User %s pressed MOMENTUM.", update)
-    # logger.info("User %s started the conversation.", update)
     query = update.callback_query
     symbol = query.message.reply_markup.inline_keyboard[0][0].text.split()[1][1:]
     ticker = yf.Ticker(symbol)
@@ -261,20 +247,27 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def ticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     start_time = time.perf_counter()
     await update.message.reply_text(f"Working on {context.args[0]}")
-    # await update.message.reply_text(f"Hello {update.effective_user.first_name}")
     logging.info("---------------/symbol COMMAND------------------")
     logging.info("User %s started the conversation.", update)
     chat_type = update.message.chat.type
     chat_id = update.message.chat.id
     thread_id = update.message.message_thread_id
 
+    """
+    A not very good implementation of number of calls
     with open("counter.txt", "r") as f:
         count = f.read()
 
     with open("counter.txt", "w") as f:
         new_count = int(count) + 1
         f.write(str(new_count))
+    """
 
+    """
+        selected_room is for supergroups.
+        In my case i deployed this bot to a group
+        and it was allowed to only in a given room
+    """
     with open("selected_room.json", "r+") as f:
         data = json.load(f)
     if (
@@ -355,7 +348,6 @@ def main() -> None:
     application.add_handler(conv_handler)
 
     application.add_handler(CommandHandler("symbol", ticker_command))
-    # application.add_handler(CommandHandler("start", start))
 
     application.add_error_handler(error_handler)
 

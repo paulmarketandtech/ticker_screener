@@ -10,5 +10,14 @@ logs/
 tests/
 venv/
 .venv/
+.env
+.env.example
+.env/
 *.md
-test.py
+.pytest_cache
+.mypy_cache
+.ruff_cache
+Dockerfile
+compose.yaml
+docker-compose.yml
+deploy.sh
