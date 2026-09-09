@@ -12,13 +12,13 @@ I personally most often use it for the latest news
 
 ---
 ### Steps to set up the app:
-In the Telegram app talk to @BotFather . create a new bot and copy its token.
-Paste the token to .env.example in TOKEN field, save and remove the .example extension
-
 ```
 git clone https://github.com/paulmarketandtech/ticker_screener.git 
 cd ticker_screener 
 ```
+
+In the Telegram app talk to @BotFather . create a new bot and copy its token.
+Paste the token to .env.example in TOKEN field, save and remove the .example extension
 
 Note: you have to do a small tweak over here. By default it will work in a private chat but it was designed for working in a supergroup. If you’re planning to use it in a group then provide real values in the selected_room.json.example and remove the .example extension.
 If you just want to use it in a private chat then just remove the .example extension.
