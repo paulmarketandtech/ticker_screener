@@ -10,13 +10,8 @@ import yfinance as yf
 from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import (
-    Application,
-    CallbackQueryHandler,
-    CommandHandler,
-    ContextTypes,
-    ConversationHandler,
-)
+from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
+                          ContextTypes, ConversationHandler)
 
 load_dotenv()
 
@@ -144,43 +139,32 @@ async def news_company(update: Update, context: ContextTypes.DEFAULT_TYPE):
     symbol = query.message.reply_markup.inline_keyboard[0][0].text.split()[1][1:]
     ticker = yf.Ticker(symbol)
 
-    date1 = datetime.fromisoformat(
-        ticker.news[0]["content"]["pubDate"].replace("Z", "+00:00")
-    )
-    dt1 = date1.strftime("%Y-%m-%d %H:%M:%S")
-    date2 = datetime.fromisoformat(
-        ticker.news[1]["content"]["pubDate"].replace("Z", "+00:00")
-    )
-    dt2 = date2.strftime("%Y-%m-%d %H:%M:%S")
-    date3 = datetime.fromisoformat(
-        ticker.news[2]["content"]["pubDate"].replace("Z", "+00:00")
-    )
-    dt3 = date3.strftime("%Y-%m-%d %H:%M:%S")
-
-    links = []
-    for i in range(3):
-        try:
-            links.append(ticker.news[i]["content"]["clickThroughUrl"]["url"])
-        except TypeError:
-            links.append(ticker.news[i]["content"]["canonicalUrl"]["url"])
-
+    news = yf.Search(ticker.ticker, news_count=3).news
+    datepublished0 = datetime.fromtimestamp(news[0]['providerPublishTime']).strftime('%Y-%m-%d %H:%M')
+    datepublished1 = datetime.fromtimestamp(news[1]['providerPublishTime']).strftime('%Y-%m-%d %H:%M')
+    datepublished2 = datetime.fromtimestamp(news[2]['providerPublishTime']).strftime('%Y-%m-%d %H:%M')
+   
     # hardcoded 3 newest news
     msg = (
         f"News for {ticker.info['longName']}:\n\n"
-        f"Title: {ticker.news[0]['content']['title']}\n\n"
-        f"Summary: {ticker.news[0]['content']['summary']}\n\n"
-        f"Time published: {dt1}\n"
-        f"Link: {links[0]}\n"
+        f"Title: {news[0]['title']}\n\n"
+        f"Time published: {datepublished0}\n"
+        f"Related tickers: {news[0].get("relatedTickers", "")}\n"
+        f"News Type: {news[0].get("type", "")}\n"
+        f"Link: {news[0].get('link',"")}\n"
+        "----------------------------------------\n\n"
+        f"Title: {news[1]['title']}\n\n"
+        f"Time published: {datepublished1}\n"
+        f"Related tickers: {news[1].get("relatedTickers", "")}\n"
+        f"News Type: {news[1].get("type", "")}\n"
+        f"Link: {news[1].get('link',"")}\n"
+        "----------------------------------------\n\n"
+        f"Title: {news[2]['title']}\n\n"
+        f"Time published: {datepublished2}\n"
+        f"Related tickers: {news[2].get("relatedTickers", "")}\n"
+        f"News Type: {news[2].get("type", "")}\n"
+        f"Link: {news[2].get('link',"")}\n"
         "----------------------------------------\n"
-        f"Title: {ticker.news[1]['content']['title']}\n\n"
-        f"Summary: {ticker.news[1]['content']['summary']}\n\n"
-        f"Time published: {dt2}\n"
-        f"Link: {links[1]}\n"
-        "----------------------------------------\n"
-        f"Title: {ticker.news[2]['content']['title']}\n\n"
-        f"Summary: {ticker.news[2]['content']['summary']}\n\n"
-        f"Time published: {dt3}\n"
-        f"Link: {links[2]}"
     )
     await query.answer()
 
